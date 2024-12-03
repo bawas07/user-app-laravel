@@ -123,4 +123,6 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'fe_url' => env('FE_URL', 'http://localhost:3000'),
+
 ];
