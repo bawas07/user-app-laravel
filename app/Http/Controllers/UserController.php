@@ -8,14 +8,11 @@ use App\Mail\Welcome;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use App\Traits\ApiResponse;
 
 class UserController extends Controller
 {
-    public function index()
-    {
-        $user = User::all();
-        return response()->json($user);
-    }
+    use ApiResponse;
 
     public function createUser(CreateUserRequest $request)
     {
@@ -24,20 +21,12 @@ class UserController extends Controller
             
             // Queue the welcome email
             Mail::to($user->email)->queue(new Welcome($user));
-            Mail::to("admin@email.com")->queue(new NewUserNotification($user));
+            Mail::to(config('mail.admin_email'))->queue(new NewUserNotification($user));
 
-            return response()->json([
-                'error' => false,
-                'message' => 'User created successfully. Welcome email will be sent shortly.',
-                'data' => $user
-            ], 201);
+            return $this->successResponse($user, 'User created successfully');
             
         } catch (\Exception $e) {
-            return response()->json([
-                'error' => true,
-                'message' => 'Failed to create user',
-                'data' => config('app.debug') ? $e->getMessage() : null
-            ], 500);
+            return $this->errorResponse($e->getMessage(), 500);
         }
     }
 
@@ -68,7 +57,7 @@ class UserController extends Controller
         
         $users = $query->withCount("orders")->paginate($perPage, ['*'], 'page', $page);
         
-        return response()->json([
+        return $this->successResponse([
             'page' => $users->currentPage(),
             'data' => $users->items(),
         ]);

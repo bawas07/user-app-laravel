@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Order extends Model
 {
+    public $timestamps = ["created_at"]; //only want to used created_at column
+    const UPDATED_AT = null; //and updated by default null set
         /**
      * The attributes that are mass assignable.
      *
